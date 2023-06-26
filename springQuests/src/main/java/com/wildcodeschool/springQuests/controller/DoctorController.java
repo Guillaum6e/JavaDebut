@@ -2,26 +2,27 @@ package com.wildcodeschool.springQuests.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.wildcodeschool.models.Doctor;
 
 @Controller
 public class DoctorController {
 
-    @GetMapping("/doctor/1")
+    @GetMapping("/doctor/{id}")
     @ResponseBody
-    public String doctor1() {
-        return "William Hartnell";
-    }
+    public String doctor(@PathVariable int id) {
+        if (id == 13) {
+            Doctor doctor = new Doctor("Jodie Whittaker", 13);
+            return doctor.getName() + " " + doctor.getNumber();
+        }
 
-    @GetMapping("/doctor/10")
-    @ResponseBody
-    public String doctor2() {
-        return "David Tennant";
-    }
+        if (id != 13 && id < 13 && id > 0) {
+            return "error 303 : this doctor doesn't exist";
+        }
 
-    @GetMapping("/doctor/13")
-    @ResponseBody
-    public String doctor3() {
-        return "Jodie Whittaker";
+        return "Impossible de récupérer l'incarnation " + id + " du Docteur";
+
     }
 }
