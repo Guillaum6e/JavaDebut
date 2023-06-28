@@ -1,8 +1,14 @@
 package com.wildcodeschool.wildandwizard.controller;
 
 import com.wildcodeschool.wildandwizard.entity.School;
+import com.wildcodeschool.wildandwizard.entity.Wizard;
 import com.wildcodeschool.wildandwizard.repository.SchoolRepository;
+import com.wildcodeschool.wildandwizard.repository.WizardRepository;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SchoolController {
 
     @Autowired
-    private SchoolRepository repository;
+    private SchoolRepository schoolRepository;
+
+    @Autowired
+    private WizardRepository wizardRepository;
 
     @GetMapping("/schools")
     public String getAll(Model model) {
 
-        model.addAttribute("schools", repository.findAll());
+        model.addAttribute("schools", schoolRepository.findAll());
 
         return "schools";
     }
@@ -33,7 +42,7 @@ public class SchoolController {
 
         School school = new School();
         if (id != null) {
-            Optional<School> optionalSchool = repository.findById(id);
+            Optional<School> optionalSchool = schoolRepository.findById(id);
             if (optionalSchool.isPresent()) {
                 school = optionalSchool.get();
             }
@@ -45,14 +54,82 @@ public class SchoolController {
 
     @PostMapping("/school")
     public String postSchool(@ModelAttribute School school) {
-        repository.save(school);
+        schoolRepository.save(school);
         return "redirect:/schools";
     }
 
     @GetMapping("/school/delete")
     public String deleteSchool(@RequestParam Long id) {
 
-        repository.deleteById(id);
+        schoolRepository.deleteById(id);
         return "redirect:/schools";
+    }
+
+    @GetMapping("/school/register")
+    public String inscription(Model out,
+            @RequestParam Long idSchool) {
+
+        Optional<School> optionalSchool = schoolRepository.findById(idSchool);
+        School school = new School();
+        if (optionalSchool.isPresent()) {
+            school = optionalSchool.get();
+        }
+        out.addAttribute("school", school);
+        out.addAttribute("allWizards", wizardRepository.findAll());
+
+        // call the method getWizards in School
+        List<Wizard> wizards = new ArrayList<>();
+        Method method = getMethod(school, "getWizards",
+                new Class[] {});
+        if (method != null) {
+            try {
+                wizards = (List<Wizard>) method.invoke(school);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        out.addAttribute("schoolWizards", wizards);
+
+        return "register";
+    }
+
+    @PostMapping("/school/register")
+    public String inscription(@RequestParam Long idSchool,
+            @RequestParam Long idWizard) {
+
+        Optional<Wizard> optionalWizard = wizardRepository.findById(idWizard);
+        if (optionalWizard.isPresent()) {
+            Wizard wizard = optionalWizard.get();
+
+            Optional<School> optionalSchool = schoolRepository.findById(idSchool);
+            if (optionalSchool.isPresent()) {
+                School school = optionalSchool.get();
+
+                // call the method setSchool in Wizard
+                Method method = getMethod(wizard, "setSchool",
+                        new Class[] { School.class });
+                if (method != null) {
+                    try {
+                        method.invoke(wizard, school);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+                wizardRepository.save(wizard);
+            }
+        }
+
+        return "redirect:/school/register?idSchool=" + idSchool;
+    }
+
+    public Method getMethod(Object obj, String methodName, Class[] args) {
+        Method method;
+        try {
+            method = obj.getClass().getDeclaredMethod(methodName, args);
+            return method;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
