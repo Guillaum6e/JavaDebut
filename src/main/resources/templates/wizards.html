@@ -28,9 +28,7 @@
 </style>
 
 <body>
-    <h3>Wizards</h3>
-    <a href="/wizard">Add a new wizard !</a>
-    <br><br>
+    <h3>Students:</h3>
     <table>
         <thead>
             <tr>
@@ -41,7 +39,6 @@
                 <th>Birth place</th>
                 <th>Biography</th>
                 <th>Muggle</th>
-                <th></th>
                 <th></th>
             </tr>
         </thead>
@@ -54,12 +51,10 @@
                 <td th:text="${wizard.birthPlace}">birth place</td>
                 <td th:text="${wizard.biography}">biography</td>
                 <td th:text="${wizard.muggle}">muggle</td>
-                <td><a th:href="@{/wizard(id=${wizard.id})}">Edit</a></td>
-                <td><a th:href="@{/wizard/delete(id=${wizard.id})}">Remove</a></td>
+                <td><a th:href="@{/wizard/register(idWizard=${wizard.id})}">courses</a></td>
             </tr>
         </tbody>
     </table>
-    <br>
 </body>
 
 </html>
