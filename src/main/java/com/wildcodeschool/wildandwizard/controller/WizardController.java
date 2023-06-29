@@ -1,9 +1,8 @@
 package com.wildcodeschool.wildandwizard.controller;
 
-import com.wildcodeschool.wildandwizard.entity.Course;
 import com.wildcodeschool.wildandwizard.entity.Wizard;
-import com.wildcodeschool.wildandwizard.repository.CourseRepository;
-import com.wildcodeschool.wildandwizard.repository.WizardRepository;
+import com.wildcodeschool.wildandwizard.repository.WizardDao;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,25 +11,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 @Controller
 public class WizardController {
 
     @Autowired
-    private WizardRepository wizardRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
+    private WizardDao wizardDao;
 
     @GetMapping("/wizards")
     public String getAll(Model model) {
 
-        model.addAttribute("wizards", wizardRepository.findAll());
+        model.addAttribute("wizards", wizardDao.findAll());
 
         return "wizards";
     }
@@ -41,10 +31,7 @@ public class WizardController {
 
         Wizard wizard = new Wizard();
         if (id != null) {
-            Optional<Wizard> optionalWizard = wizardRepository.findById(id);
-            if (optionalWizard.isPresent()) {
-                wizard = optionalWizard.get();
-            }
+            wizard = wizardDao.findById(id);
         }
         model.addAttribute("wizard", wizard);
 
@@ -54,86 +41,25 @@ public class WizardController {
     @PostMapping("/wizard")
     public String postWizard(@ModelAttribute Wizard wizard) {
 
-        wizardRepository.save(wizard);
+        if (wizard.getId() != null) {
+            wizardDao.update(wizard);
+        } else {
+            wizardDao.save(wizard);
+        }
         return "redirect:/wizards";
     }
 
     @GetMapping("/wizard/delete")
     public String deleteWizard(@RequestParam Long id) {
 
-        wizardRepository.deleteById(id);
+        wizardDao.deleteById(id);
 
         return "redirect:/wizards";
     }
 
-    @GetMapping("/wizard/register")
-    public String getRegister(Model out,
-            @RequestParam Long idWizard) {
+    @GetMapping("/")
+    public String index() {
 
-        Optional<Wizard> optionalWizard = wizardRepository.findById(idWizard);
-        Wizard wizard = new Wizard();
-        if (optionalWizard.isPresent()) {
-            wizard = optionalWizard.get();
-        }
-        out.addAttribute("wizard", wizard);
-        out.addAttribute("allCourses", courseRepository.findAll());
-
-        // call the method getCourses in Wizard
-        List<Course> courses = new ArrayList<>();
-        Method method = getMethod(wizard, "getCourses",
-                new Class[] {});
-        if (method != null) {
-            try {
-                courses = (List<Course>) method.invoke(wizard);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-        out.addAttribute("wizardCourses", courses);
-
-        return "register";
-    }
-
-    @PostMapping("/wizard/register")
-    public String postRegister(@RequestParam Long idWizard,
-            @RequestParam Long idCourse) {
-
-        Optional<Wizard> optionalWizard = wizardRepository.findById(idWizard);
-        if (optionalWizard.isPresent()) {
-            Wizard wizard = optionalWizard.get();
-
-            Optional<Course> optionalCourse = courseRepository.findById(idCourse);
-            if (optionalCourse.isPresent()) {
-                Course course = optionalCourse.get();
-
-                // call the method getCourses in Wizard
-                List<Course> courses;
-                Method method = getMethod(wizard, "getCourses",
-                        new Class[] {});
-                if (method != null) {
-                    try {
-                        courses = (List<Course>) method.invoke(wizard);
-                        courses.add(course);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                wizardRepository.save(wizard);
-            }
-        }
-
-        return "redirect:/wizard/register?idWizard=" + idWizard;
-    }
-
-    public Method getMethod(Object obj, String methodName, Class[] args) {
-        Method method;
-        try {
-            method = obj.getClass().getDeclaredMethod(methodName, args);
-            return method;
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return "redirect:/wizards";
     }
 }

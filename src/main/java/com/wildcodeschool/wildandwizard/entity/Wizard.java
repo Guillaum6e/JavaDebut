@@ -4,14 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 public class Wizard {
@@ -26,31 +20,18 @@ public class Wizard {
     private String biography;
     private boolean muggle;
 
-    @ManyToOne
-    @JoinColumn(name = "school_id")
-    private School school;
-
-    @ManyToMany
-    @JoinTable(name = "wizard_course", joinColumns = @JoinColumn(name = "wizard_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private List<Course> courses = new ArrayList<>();
-
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
-    }
-
-    public School getSchool() {
-        return school;
-    }
-
-    public void setSchool(School school) {
-        this.school = school;
-    }
-
     public Wizard() {
+    }
+
+    public Wizard(Long id, String firstName, String lastName, Date birthday, String birthPlace, String biography,
+            boolean muggle) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthday = birthday;
+        this.birthPlace = birthPlace;
+        this.biography = biography;
+        this.muggle = muggle;
     }
 
     public Long getId() {
