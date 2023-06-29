@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>School Registration</title>
+    <title>Courses Registration</title>
     <style>
         table {
             border-collapse: collapse;
@@ -28,44 +28,33 @@
 </head>
 
 <body>
-    <form action="/school/register" method="post">
-        <input name="idSchool" th:value="${school.id}" type="hidden">
-        <h1 th:text="${school.name}"></h1>
-        <label for="wizard">Register a student:</label>
-        <select id="wizard" name="idWizard">
-            <option th:each="wizard : ${allWizards}" th:text="|${wizard.firstName} ${wizard.lastName}|"
-                th:value="${wizard.id}">wizard name
+    <form action="/wizard/register" method="post">
+        <input name="idWizard" th:value="${wizard.id}" type="hidden">
+        <h1 th:text="|${wizard.firstName} ${wizard.lastName}|"></h1>
+        <label for="course">Register a course:</label>
+        <select id="course" name="idCourse">
+            <option th:each="course : ${allCourses}" th:text="${course.name}" th:value="${course.id}">wizard name
             </option>
         </select>
         <input type="submit" value="Send">
     </form>
-    <h3>Students:</h3>
+    <h3>Student courses:</h3>
     <table>
         <thead>
             <tr>
                 <th>Id</th>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Birthday</th>
-                <th>Birth place</th>
-                <th>Biography</th>
-                <th>Muggle</th>
+                <th>Name</th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="wizard : ${schoolWizards}">
-                <td th:text="${wizard.id}">id</td>
-                <td th:text="${wizard.firstName}">first name</td>
-                <td th:text="${wizard.lastName}">last name</td>
-                <td th:text="${wizard.birthday}">birthday</td>
-                <td th:text="${wizard.birthPlace}">birth place</td>
-                <td th:text="${wizard.biography}">biography</td>
-                <td th:text="${wizard.muggle}">muggle</td>
+            <tr th:each="course : ${wizard.courses}">
+                <td th:text="${course.id}">id</td>
+                <td th:text="${course.name}">name</td>
             </tr>
         </tbody>
     </table>
     <br>
-    <a href="/">Return to school's list</a>
+    <a href="/">Return to students list</a>
 </body>
 
 </html>
